@@ -13,7 +13,17 @@
 
     let enableESP = false;
 
+    const isTypingInChat = () => {
+        const active = document.activeElement;
+        return active && (
+            active.tagName === 'INPUT' ||
+            active.tagName === 'TEXTAREA' ||
+            active.isContentEditable
+        );
+    };
+
     document.addEventListener('keydown', function(event) {
+        if (isTypingInChat()) return;
         if (event.key === 't' || event.key === 'T') {
             enableESP = !enableESP;
         };
@@ -236,7 +246,8 @@
         ss.PLAYERS.forEach(PLAYER => {
             if (PLAYER) {
                 PLAYER.timecode = timecode;
-                if ((PLAYER !== ss.MYPLAYER) && ((ss.MYPLAYER.team == 0) || (PLAYER.team !== ss.MYPLAYER.team))) {
+                const isEnemy = (PLAYER !== ss.MYPLAYER) && ((ss.MYPLAYER.team == 0) || (PLAYER.team !== ss.MYPLAYER.team));
+                if (isEnemy) {
                     if (!PLAYER.generatedESP) {
                         const boxSize = { width: 0.4, height: 0.65, depth: 0.4 };
                         const vertices = [
@@ -263,7 +274,10 @@
                         PLAYER.generatedESP = true;
                         ESPArray.push([box, PLAYER]);
                     };
-                    PLAYER.box.visibility = enableESP;                };
+                    PLAYER.box.visibility = enableESP;
+                } else {
+                    if (PLAYER.box) PLAYER.box.visibility = false;
+                };
             };
         });
 
